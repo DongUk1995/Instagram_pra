@@ -3,11 +3,9 @@ import { loadFilesSync } from "@graphql-tools/load-files";
 import { mergeTypeDefs, mergeResolvers } from "@graphql-tools/merge";
 import { makeExecutableSchema } from "graphql-tools";
 
-const loadedTypes = loadFilesSync(
-  path.join(__dirname, "./movies/**/*.typeDefs.js")
-);
+const loadedTypes = loadFilesSync(path.join(__dirname, "./**/*.typeDefs.js"));
 const loadedResolvers = loadFilesSync(
-  path.join(__dirname, "./movies/**/*.{queries,mutations}.js")
+  path.join(__dirname, "./**/*.{queries,mutations}.js")
 );
 
 const typeDefs = mergeTypeDefs(loadedTypes);

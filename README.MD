@@ -1,5 +1,3 @@
-#Instagram backend
-
 1. SetUp
 
    - 폴더 생성 후 깃 연결 init -y
@@ -12,3 +10,17 @@
 2. db
    - client는 데이터베이스와 어떻게 말하는 건가? 임
    - client는 node_moudeles에 있음
+
+# Instagram backend
+
+Instaclone Backend.
+
+## User :
+
+- [] : 계정생성
+- [] : 프로필 생성
+- [] : 로그인
+- [] : 프로필 수정
+- [] : 팔로워 기능
+- [] : 언팔로워 기능
+- [] : 프로필 사진 수정
