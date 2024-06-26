@@ -3,24 +3,23 @@ import { gql } from "apollo-server";
 export default gql`
   type User {
     id: String!
-    firsName: String!
+    firstName: String!
     lastName: String
-    userName: String!
+    username: String!
     email: String!
-    createAt: String!
+    createdAt: String!
     updatedAt: String!
   }
-
   type Mutation {
     createAccount(
-      firsName: String!
+      firstName: String!
       lastName: String
-      userName: String!
+      username: String!
       email: String!
       password: String!
     ): User
   }
   type Query {
-    SeeProfile(username: String!): User
+    seeProfile(username: String!): User
   }
 `;
