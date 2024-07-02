@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import client from "../client";
+import client from "../../client";
 
 export default {
   Mutation: {
@@ -38,11 +38,9 @@ export default {
         return e;
       }
     },
+
+    // 일단 만들기 전에 계정이 있는지 없는지 확인한다. existingUser (const만 해줘도 실행된다.)
+    // 그 후 해시로 바꾼다(해시 비번은 일단 만들면 해시 바뀐 문자열과 로그인시 변경한 문자열을 비교 하여 로그인 여부를 결정한다.) uglyPassword
+    // 그 후 계정을 만든다. client.user.create
   },
 };
-
-// 일단 만들기 전에 계정이 있는지 없는지 확인한다. existingUser (const만 해줘도 실행된다.)
-
-// 그 후 해시로 바꾼다(해시 비번은 일단 만들면 해시 바뀐 문자열과 로그인시 변경한 문자열을 비교 하여 로그인 여부를 결정한다.) uglyPassword
-
-// 그 후 계정을 만든다. client.user.create
