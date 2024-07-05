@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "dev": "nodemon --exec babel-node server ",
     "migrate": "npx prisma migrate dev --preview-feature",
     "studio": "npx prisma studio"
@@ -24,6 +25,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "fs-capacitor": "^8.0.0",
     "graphql": "^16.8.2",
     "graphql-subscriptions": "^2.0.0",
     "graphql-tools": "^9.0.1",

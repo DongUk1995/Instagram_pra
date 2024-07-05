@@ -1,50 +1,65 @@
 require("dotenv").config();
-import { ApolloServer } from "apollo-server";
-import schema from "./schema";
-import { getUser, proTectResolsever } from "./users/users.utils";
-
-const server = new ApolloServer({
-  schema,
-  context: async ({ req }) => {
-    return {
-      loggedInUser: await getUser(req.headers.token),
-      proTectResolsever,
-    };
-  },
-});
-
-const PORT = process.env.PORT; //dotenv를 사용하여 어디서든 env파일에 접근 할 수 있다.
-
-server
-  .listen(PORT)
-  .then(() =>
-    console.log(`🚀Server is running on http://localhost:${PORT}/✅`)
-  );
-
-//apollo가 graphql를 만드는 라이브러리이기 때문에 contxt 오브젝트를 이용한다.
-
-/* require("dotenv").config();
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.js";
-import logger from "morgan";
-import http from "http";
 import express from "express";
 import cors from "cors";
+import logger from "morgan";
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import { createServer } from "http";
 import pkg from "body-parser";
 import { resolvers, typeDefs } from "./schema";
 import { getUser } from "./users/users.utils";
+import { WebSocketServer } from "ws";
+import { useServer } from "graphql-ws/lib/use/ws";
 
+const schema = makeExecutableSchema({ typeDefs, resolvers });
 const { json } = pkg;
 const PORT = process.env.PORT;
 const app = express();
-const httpServer = http.createServer(app);
-async function startApolloServer(typeDefs, resolvers) {
+const httpServer = createServer(app);
+const wsServer = new WebSocketServer({
+  server: httpServer,
+  path: "/graphql",
+});
+const serverCleanup = useServer(
+  {
+    schema,
+    context: async (ctx) => {
+      if (!ctx.connectionParams?.token) {
+        return { loggedInUser: null };
+      }
+      const loggedInUser = await getUser(ctx.connectionParams?.token);
+      return {
+        loggedInUser,
+      };
+    },
+    onConnect: async (ctx) => {
+      if (!ctx.connectionParams?.token) {
+        throw new Error("token is missing");
+      }
+    },
+    onDisconnect(ctx, code, reason) {},
+  },
+  wsServer
+);
+
+async function startServer() {
   const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    schema,
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
+    ],
     csrfPrevention: false,
   });
 
@@ -54,12 +69,15 @@ async function startApolloServer(typeDefs, resolvers) {
     "/graphql",
     cors(),
     json(),
+    logger("tiny"),
     graphqlUploadExpress(),
     expressMiddleware(server, {
       context: async ({ req }) => {
-        return {
-          loggedInUser: await getUser(req.headers.token),
-        };
+        if (req) {
+          return {
+            loggedInUser: await getUser(req.headers.token),
+          };
+        }
       },
     })
   );
@@ -69,5 +87,4 @@ async function startApolloServer(typeDefs, resolvers) {
   console.log(`🚀  Server ready at: http://localhost:${PORT}/graphql`);
 }
 
-startApolloServer(typeDefs, resolvers);
- */
+startServer();
