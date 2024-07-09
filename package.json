@@ -33,6 +33,7 @@
     "http": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
+    "prettier-plugin-prisma": "^5.0.0",
     "ws": "^8.17.1"
   },
   "devDependencies": {
