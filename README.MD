@@ -26,13 +26,9 @@
 5. jsonwebtoken
    - npm install jsonwebtoken
 
-# Instagram backend
+# Instaclone
 
-Instaclone Backend.
-
-## Instaclone
-
-Instaclone Backend.
+Instagram Backend.
 
 ## User:
 
@@ -52,15 +48,32 @@ Instaclone Backend.
 
 - [x] Upload Photo (Parse #)
 - [x] See Photo
-- [x] See Hashtags
+- [x] See Hashtag
 - [x] Search Photos
 - [x] Edit Photo
 - [x] Like / Unlike Photo
 - [x] See Photo Likes
-- [ ] See Feed
+- [x] See Feed
+- [x] See Photo Comments
+- [x] Delete Photo
 
 ## Comments
 
-- [ ] Comment on Photo
-- [ ] Edit Comment
-- [ ] Delete Comment
+- [x] Comment on Photo
+- [x] Delete Comment
+- [x] Edit Comment
+
+## Refactor
+
+- [x] Mutation Responses
+
+## Extras
+
+- [x] S3 Image Upload
+
+## Dms
+
+- [] Create Room
+- [] Get Room
+- [] Send Message
+- [] Realtime Messages
