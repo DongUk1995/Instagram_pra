@@ -2,23 +2,25 @@ require("dotenv").config();
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
-import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.js";
-import express from "express";
-import cors from "cors";
-import logger from "morgan";
 import { makeExecutableSchema } from "@graphql-tools/schema";
-import { createServer } from "http";
+import { WebSocketServer } from "ws";
+import { useServer } from "graphql-ws/lib/use/ws";
+import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.js";
+import logger from "morgan";
+import express from "express";
+import http from "http";
+import cors from "cors";
 import pkg from "body-parser";
 import { resolvers, typeDefs } from "./schema";
 import { getUser } from "./users/users.utils";
-import { WebSocketServer } from "ws";
-import { useServer } from "graphql-ws/lib/use/ws";
+import pubsub from "./pubsub";
 
-const schema = makeExecutableSchema({ typeDefs, resolvers });
+console.log(pubsub);
 const { json } = pkg;
 const PORT = process.env.PORT;
 const app = express();
-const httpServer = createServer(app);
+const httpServer = http.createServer(app);
+const schema = makeExecutableSchema({ typeDefs, resolvers });
 const wsServer = new WebSocketServer({
   server: httpServer,
   path: "/graphql",
@@ -26,28 +28,22 @@ const wsServer = new WebSocketServer({
 const serverCleanup = useServer(
   {
     schema,
-    context: async (ctx) => {
-      if (!ctx.connectionParams?.token) {
-        return { loggedInUser: null };
+    context: async ({ connectionParams: { token } }) => {
+      if (!token) {
+        throw new Error("You can't listen");
       }
-      const loggedInUser = await getUser(ctx.connectionParams?.token);
+      const loggedInUser = await getUser(token);
       return {
         loggedInUser,
       };
     },
-    onConnect: async (ctx) => {
-      if (!ctx.connectionParams?.token) {
-        throw new Error("token is missing");
-      }
-    },
-    onDisconnect(ctx, code, reason) {},
   },
   wsServer
 );
-
-async function startServer() {
+async function startApolloServer(typeDefs, resolvers) {
   const server = new ApolloServer({
-    schema,
+    typeDefs,
+    resolvers,
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
       {
@@ -72,19 +68,20 @@ async function startServer() {
     logger("tiny"),
     graphqlUploadExpress(),
     expressMiddleware(server, {
-      context: async ({ req }) => {
-        if (req) {
+      context: async (ctx) => {
+        if (ctx.req) {
           return {
-            loggedInUser: await getUser(req.headers.token),
+            loggedInUser: await getUser(ctx.req.headers.token),
           };
         }
       },
     })
   );
+
   app.use("/static", express.static("uploads"));
 
   await new Promise((resolve) => httpServer.listen({ port: PORT }, resolve));
   console.log(`🚀  Server ready at: http://localhost:${PORT}/graphql`);
 }
 
-startServer();
+startApolloServer(typeDefs, resolvers);
