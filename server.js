@@ -13,13 +13,11 @@ import cors from "cors";
 import pkg from "body-parser";
 import { resolvers, typeDefs } from "./schema";
 import { getUser } from "./users/users.utils";
-import pubsub from "./pubsub";
 
-console.log(pubsub);
 const { json } = pkg;
 const PORT = process.env.PORT;
 const app = express();
-const httpServer = http.createServer(app);
+const httpServer = http.createServer(app); //
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const wsServer = new WebSocketServer({
   server: httpServer,
